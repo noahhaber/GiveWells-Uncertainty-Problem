@@ -1,0 +1,14 @@
+name: GiveWells-Uncertainty-Problem
+title: GiveWells-Uncertainty-Problem
+username:
+account: noahhaber
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 7198322
+bundleId: 6365597
+url: https://noahhaber.shinyapps.io/GiveWells-Uncertainty-Problem/
+when: 1664838959.10508
+lastSyncTime: 1664838959.10509
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: .gitattributes|sensitivity analysis.R
