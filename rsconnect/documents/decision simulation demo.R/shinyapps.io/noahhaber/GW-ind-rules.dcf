@@ -1,0 +1,14 @@
+name: GW-ind-rules
+title: GW-ind-rules
+username:
+account: noahhaber
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 7211964
+bundleId: 6369645
+url: https://noahhaber.shinyapps.io/GW-ind-rules/
+when: 1664928529.69784
+lastSyncTime: 1664928529.69786
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: .gitattributes|sensitivity analysis.R|simulation demo.R

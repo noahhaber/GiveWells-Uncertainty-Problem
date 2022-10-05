@@ -206,7 +206,7 @@ server <- function(input, output) {
 # UI
 {
   ui <- pageWithSidebar(
-    headerPanel("Selection rules"),
+    headerPanel("Conceptual demonstration of overall selection problem"),
     sidebarPanel(
       h4("Generate simulated candidate programs"),
       numericInput("n.programs", 
