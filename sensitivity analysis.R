@@ -13,8 +13,10 @@
 # Settings and initialization
 {
   workbook.address <- "1x1nj_79t0OhauyfN9HANRmgSt6wAQA__cCNOyqA1Ohw"
-  iterations <- 30
+  iterations <- 1000
+  batch.size <- 10
   suppress.gs4.messages <- TRUE
+  filename.for.storage <- "Results data/simulation results.RData"
   
   df.sens.in <- read_sheet(workbook.address,sheet="Sensitivity input")
   df.sens.in$SD <- as.numeric(df.sens.in$SD)
@@ -127,23 +129,32 @@
 
   # Function running a single iteration of the PSA
     single.iteration <- function(){
-        #time.start <-Sys.time()
+        time.start <-Sys.time()
         new.value.inputs <- generate.new.inputs()
         write.inputs(new.value.inputs)
         new.value.outputs <- read.outputs()
-        #time.elapsed <- Sys.time()-time.start
-        #if(time.elapsed<1.5){Sys.sleep(1.5-time.elapsed)}
+        time.elapsed <- Sys.time()-time.start
+        if(time.elapsed<1.1){Sys.sleep(1.1-time.elapsed)}
         new.value.outputs
     }
-  
-  # Run the PSA
-    if(suppress.gs4.messages==TRUE){
-      results <- do.call(rbind,pbreplicate(iterations,with_gs4_quiet(single.iteration()),simplify=FALSE))
-    } else {
-      results <- do.call(rbind,pbreplicate(iterations,single.iteration(),simplify=FALSE))
-    }
     
+    batch.iteration <- function(i.batch){
+      if(suppress.gs4.messages==TRUE){
+        results.internal <- do.call(rbind,replicate(batch.size,with_gs4_quiet(single.iteration()),simplify=FALSE))
+      } else {
+        results.internal <- do.call(rbind,replicate(batch.size,single.iteration(),simplify=FALSE))
+      }
+      
+      if (i.batch == 1){
+        results <<- results.internal
+      } else {
+        results <<- rbind(results,results.internal)
+      }
+      save(results,file=filename.for.storage)
+    }
   
+  # Run the PSA in batches (note: iterative saving is inefficient, but ensures not losing all data in case of error)
+    pblapply(1:(ceiling(iterations/batch.size)),function(x) batch.iteration(x))
   # Reset models back to original inputs
     write.inputs(orig.value.inputs)
 }
