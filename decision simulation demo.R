@@ -143,8 +143,10 @@ server <- function(input, output) {
     }
     if(input$ruleselect == "Rule4"){
       shinyjs::show("rule4pthreshold")
+      shinyjs::show("comparator.program.sd")
     }else{
       shinyjs::hide("rule4pthreshold")
+      shinyjs::hide("comparator.program.sd")
     }
   })
 }
@@ -157,16 +159,13 @@ server <- function(input, output) {
       h4("Generate simulated candidate program"),
       numericInput("iterations", 
                    "# of iterations", 
-                   value = 8000,
+                   value = 5000,
                    min=100,max=10000),
       h4("Candidate program uncertainty distribution"),
       sliderInput("candidate.program.mean", "Uncertainty distribution Mean",
                   min = 0, max = 5, value = 2,step=.1),
       sliderInput("candidate.program.sd", "Uncertainty distribution SD",
                   min = 0, max = 5, value = 1,step=.1),
-      h4("GiveDirectly program uncertainty distribution"),
-      sliderInput("comparator.program.sd", "Uncertainty distribution SD",
-                  min = 0, max = 5, value = 0.2,step=.1)
       # h4("Comparator threshold rule"),
       # sliderInput("comparator.program.threshold", "Threshold",
       #             min = 0, max = 5, value = 3,step=.1)
@@ -192,6 +191,8 @@ server <- function(input, output) {
                (sliderInput("rule3pthreshold", "Minimum acceptable probability that candidate CE > point estimate of GiveDirectly's CE",
                                     #min = 0, max = .5, value = .2,step=.01))
                                     min = 0, max = 1, value = .8,step=.05)),
+               (sliderInput("comparator.program.sd", "GiveDirectly program uncertainty distribution (SD)",
+                           min = 0, max = 2, value = 0.2,step=.05)),
                (sliderInput("rule4pthreshold", "Minimum acceptable probability that candidate CE > GiveDirectly's CE",
                                     #min = 0, max = .5, value = .2,step=.01))
                                     min = 0, max = 1, value = .8,step=.05))

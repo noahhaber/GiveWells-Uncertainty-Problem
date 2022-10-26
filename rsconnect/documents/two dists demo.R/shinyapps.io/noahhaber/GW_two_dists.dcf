@@ -1,0 +1,14 @@
+name: GW_two_dists
+title: GW_two_dists
+username:
+account: noahhaber
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 7418391
+bundleId: 6440441
+url: https://noahhaber.shinyapps.io/GW_two_dists/
+when: 1666729402.88564
+lastSyncTime: 1666729402.88567
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: .gitattributes|decision simulation demo.R|sensitivity analysis.R|simulation demo.R

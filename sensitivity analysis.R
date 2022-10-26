@@ -8,6 +8,7 @@
   library(ggdist)
   library(here)
   library(tidyr)
+  library(cowplot)
 }
 
 # Settings and initialization
@@ -17,6 +18,8 @@
   batch.size <- 10
   suppress.gs4.messages <- TRUE
   filename.for.storage <- "Results data/simulation results.RData"
+  run.PSA <- TRUE
+  update.PSA <- FALSE
   
   df.sens.in <- read_sheet(workbook.address,sheet="Sensitivity input")
   df.sens.in$SD <- as.numeric(df.sens.in$SD)
@@ -94,6 +97,16 @@
         SD <- (((mean-CI.95.LB) + (CI.95.UB-mean))/2)/1.96
       }
       rnorm(n=1,mean=mean,sd=SD)
+    } else if(type=="normal nonneg"){ # note: recursively repeats until non-negative value selected
+      if(is.na(SD)){
+        SD <- (((mean-CI.95.LB) + (CI.95.UB-mean))/2)/1.96
+      }
+      val <- rnorm(n=1,mean=mean,sd=SD)
+      if(val>=0){
+        val
+      } else {
+        generate.random.value(type=type,mean=mean,SD=SD,CI.95.LB=CI.95.LB,CI.95.UB=CI.95.UB,n=n)
+      }
     } else if(type=="RR"){
       if(is.na(SD)){
         SD <- exp((((log(mean)-log(CI.95.LB)) + (log(CI.95.UB)-log(mean)))/2)/1.96)
@@ -106,7 +119,7 @@
 }
 
 # Run PSA
-{
+if (run.PSA==TRUE){
   # Store original values
     orig.value.outputs <- read.outputs()
     orig.value.inputs <- read.inputs.original()
@@ -159,29 +172,79 @@
     write.inputs(orig.value.inputs)
 }
 
+# Output results
+{
+  # Gather data
+    load(file=filename.for.storage)
+    results.long <- gather(results, Program, CE, factor_key=TRUE)
+  # Charts
+    ggplot(results.long, aes(x = CE, y = Program,fill=Program)) + 
+      #stat_slab(aes(thickness = stat(pdf*n)), scale = 0.7,alpha=.5)+
+      #stat_slab(scale = 0.7,alpha=.5)+
+      #stat_dots(side = "bottom", scale = 2, slab_size = NA)+
+      stat_slab(aes(thickness = stat(pdf*n)), scale = 0.7) +
+      #stat_dotsinterval(side = "bottom", scale = 0.7, slab_size = NA) +
+      #stat_gradientinterval()+
+      theme_bw()+
+      theme(
+        legend.position = "bottom",
+        legend.title = element_blank(),
+        #panel.grid = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.border = element_blank(),
+        axis.ticks = element_blank()
+      )+
+      scale_x_continuous(limits=c(-10,40),breaks=seq(from=-10,to=40,by=10))
 
-results.long <- gather(results, Program, CE, factor_key=TRUE)
+    
+    plotlist <- list()
+    
+    for (i in 1:2){
+        plotlist[[ paste0("histsubplot.",i) ]] <- ggplot(results.long[results.long$Program==levels(results.long$Program)[i],], aes(CE,fill=Program)) + 
+          geom_density(alpha=.5)+
+          theme_bw()+
+          theme(
+            legend.title = element_blank(),
+            #panel.grid = element_blank(),
+            panel.grid.minor.x = element_blank(),
+            panel.grid.major.y = element_blank(),
+            panel.grid.minor.y = element_blank(),
+            panel.border = element_blank(),
+            axis.ticks = element_blank(),
+            axis.text.y = element_blank(),
+            legend.position = "none",
+            axis.title.y = element_blank()
+          )+
+          scale_x_continuous(limits=c(-10,40),breaks=seq(from=-10,to=40,by=10))+
+          ylab(levels(results.long$Program)[i])
+    }
+    
+    plot_grid(plotlist[[1]],plotlist[[2]],plotlist[[3]],plotlist[[4]],plotlist[[5]],
+              nrow=5,align = "v")
+    
+    plot.2 <- ggplot(results.long[results.long$Program==levels(results.long$Program)[2],], aes(CE,fill=Program)) + 
+      geom_density(alpha=.5)+
+      theme_bw()+
+      theme(
+        legend.position = "bottom",
+        legend.title = element_blank(),
+        #panel.grid = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.border = element_blank(),
+        axis.ticks = element_blank()
+      )+
+      scale_x_continuous(limits=c(-10,40),breaks=seq(from=-10,to=40,by=10))
+}
+
+
+
 
 # ggplot(results.long, aes(x = CE, y = Program)) + 
 #   geom_density_ridges()
 
-ggplot(results.long, aes(x = CE, y = Program,fill=Program)) + 
-  #stat_slab(aes(thickness = stat(pdf*n)), scale = 0.7,alpha=.5)+
-  #stat_slab(scale = 0.7,alpha=.5)+
-  #stat_dots(side = "bottom", scale = 2, slab_size = NA)+
-  stat_slab(aes(thickness = stat(pdf*n)), scale = 0.7) +
-  #stat_dotsinterval(side = "bottom", scale = 0.7, slab_size = NA) +
-  #stat_gradientinterval()+
-  theme_bw()+
-  theme(
-    legend.position = "bottom",
-    legend.title = element_blank(),
-    #panel.grid = element_blank(),
-    panel.grid.minor.x = element_blank(),
-    panel.grid.major.y = element_blank(),
-    panel.grid.minor.y = element_blank(),
-    panel.border = element_blank(),
-    axis.ticks = element_blank()
-  )+
-  scale_x_continuous(limits=c(-10,40),breaks=seq(from=-10,to=40,by=10))
+
   

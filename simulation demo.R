@@ -53,7 +53,6 @@ server <- function(input, output) {
         df$CE.estimated.rule.2.CI.LB <- qnorm(input$rule2alpha/2,mean=df$CE.estimated,sd=df$CE.estimation.se)
         df$CE.estimated.meets.rule.2 <- factor(ifelse(df$CE.estimated.rule.2.CI.LB>=input$rule2threshold,1,0),levels = c(0,1),labels=c("Rejected","Selected"))
         
-        
         if (rule.selected=="Rule1"){
           threshold <- rule.1.threshold
           df$rule.for.chart <- df$CE.estimated.meets.rule.1
@@ -66,7 +65,7 @@ server <- function(input, output) {
           coord_flip()+
           stat_slab(aes(thickness = stat(pdf*n)), scale = 0.7,alpha=.7)+
           scale_y_continuous(expand=c(0,0),limits = c(-4,4))+
-          #stat_dotsinterval(side="left")+
+          stat_dotsinterval(side="bottom",binwidth=0.01)+
           theme(
             legend.position = "bottom",
             legend.title = element_blank(),
@@ -122,7 +121,7 @@ server <- function(input, output) {
           theme_bw()+
           coord_flip()+
           stat_slab(aes(thickness = stat(pdf*n)), scale = 0.7,alpha=.7)+
-          #stat_dotsinterval(side="left")+
+          stat_dotsinterval(side="bottom",binwidth=0.01)+
           scale_y_continuous(expand=c(0,0),breaks=c(-2:6),limits = c(-2,6))+
           theme(
             legend.position = "bottom",
@@ -211,11 +210,13 @@ server <- function(input, output) {
       h4("Generate simulated candidate programs"),
       numericInput("n.programs", 
                    "# candidate programs to randomly generate", 
-                   value = 10000,
-                   min=100,max=10000),
+                   #value = 10000,
+                   
+                   value = 1000,
+                   min=100,max=2000),
       h4("True cost-effectiveness"),
       helpText("Distribution of programs' true cost-effectiveness."),
-      sliderInput("CE.programs.distribution.true.mean", "Average programs' true cost-effectiveness",
+      sliderInput("CE.programs.distribution.true.mean", "Average of programs' true cost-effectiveness",
                   min = 0, max = 5, value = 1,step=.1),
       sliderInput("CE.programs.distribution.true.sd", "Range of programs' true cost-effectiveness (SD)",
                   min = 0, max = 5, value = 1.5,step=.1),
