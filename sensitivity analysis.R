@@ -194,7 +194,10 @@ if (run.PSA==TRUE){
         panel.grid.major.y = element_blank(),
         panel.grid.minor.y = element_blank(),
         panel.border = element_blank(),
-        axis.ticks = element_blank()
+        axis.ticks = element_blank(),
+        axis.title = element_text(size=14),
+        axis.text = element_text(angle = 90,hjust=0),
+        legend.text = element_text(size=12)
       )+
       scale_x_continuous(limits=c(-10,40),breaks=seq(from=-10,to=40,by=10))
 
@@ -215,7 +218,10 @@ if (run.PSA==TRUE){
             axis.ticks = element_blank(),
             axis.text.y = element_blank(),
             legend.position = "none",
-            axis.title.y = element_blank()
+            axis.title.y = element_blank(),
+            axis.title = element_text(size=14),
+            axis.text = element_text(angle = 90,hjust=0),
+            legend.text = element_text(size=12)
           )+
           scale_x_continuous(limits=c(-10,40),breaks=seq(from=-10,to=40,by=10))+
           ylab(levels(results.long$Program)[i])
@@ -224,7 +230,7 @@ if (run.PSA==TRUE){
     plot_grid(plotlist[[1]],plotlist[[2]],plotlist[[3]],plotlist[[4]],plotlist[[5]],
               nrow=5,align = "v")
     
-    plot.2 <- ggplot(results.long[results.long$Program==levels(results.long$Program)[2],], aes(CE,fill=Program)) + 
+    ggplot(results.long[results.long$Program==levels(results.long$Program),], aes(CE,fill=Program)) + 
       geom_density(alpha=.5)+
       theme_bw()+
       theme(
@@ -235,9 +241,15 @@ if (run.PSA==TRUE){
         panel.grid.major.y = element_blank(),
         panel.grid.minor.y = element_blank(),
         panel.border = element_blank(),
-        axis.ticks = element_blank()
+        axis.ticks = element_blank(),
+        axis.title = element_text(size=14),
+        axis.text = element_text(angle = 90,hjust=0),
+        legend.text = element_text(size=12)
       )+
-      scale_x_continuous(limits=c(-10,40),breaks=seq(from=-10,to=40,by=10))
+      geom_vline(aes(xintercept=3),linetype=2)+
+      scale_x_continuous(limits=c(-10,40),breaks=seq(from=-10,to=40,by=10))+
+      xlab("Cost-effectiveness (expressed in multiples of cash transfer's cost-effectiveness)")+
+      ylab("Probability density")
 }
 
 

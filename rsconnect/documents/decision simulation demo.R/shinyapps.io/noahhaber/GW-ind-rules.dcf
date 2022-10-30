@@ -5,10 +5,10 @@ account: noahhaber
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 7211964
-bundleId: 6371216
+bundleId: 6454322
 url: https://noahhaber.shinyapps.io/GW-ind-rules/
-when: 1664969869.72248
-lastSyncTime: 1664969869.7225
+when: 1667060421.71508
+lastSyncTime: 1667060421.71509
 asMultiple: FALSE
 asStatic: FALSE
-ignoredFiles: .gitattributes|sensitivity analysis.R|simulation demo.R
+ignoredFiles: .gitattributes|sensitivity analysis.R|simulation demo.R|two dists demo.R

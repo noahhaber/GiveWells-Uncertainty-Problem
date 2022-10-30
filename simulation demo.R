@@ -12,6 +12,8 @@ server <- function(input, output) {
   # Universal settings
   {
     rule.1.threshold <- 3
+    dots.binwidth <- .012
+    n.programs <- 2000
   }
   
   # Plot functions
@@ -20,7 +22,7 @@ server <- function(input, output) {
       plot.uncertainty.vs.bias <- function(df,rule.selected){
         # Apply rules
         df$CE.estimated.meets.rule.1 <- factor(ifelse(df$CE.estimated>=rule.1.threshold,1,0),levels = c(0,1),labels=c("Rejected","Selected"))
-        df$CE.estimated.rule.2.CI.LB <- qnorm(input$rule2alpha/2,mean=df$CE.estimated,sd=df$CE.estimation.se)
+        df$CE.estimated.rule.2.CI.LB <- qnorm(input$rule2alpha,mean=df$CE.estimated,sd=df$CE.estimation.se)
         df$CE.estimated.meets.rule.2 <- factor(ifelse(df$CE.estimated.rule.2.CI.LB>=input$rule2threshold,1,0),levels = c(0,1),labels=c("Rejected","Selected"))
         
         if (rule.selected=="Rule1"){
@@ -40,17 +42,26 @@ server <- function(input, output) {
             panel.grid.minor.x = element_blank(),
             panel.grid.minor.y = element_blank(),
             panel.border = element_blank(),
+            axis.title = element_text(size=14),
+            axis.text.y = element_text(angle = 90,hjust=0),
+            legend.text = element_text(size=12),
+            
             axis.ticks = element_blank()
           )+
-          geom_point(aes(color=rule.for.chart),alpha=.2,shape=16,size=threshold)+
+          #geom_point(aes(color=rule.for.chart),alpha=.2,shape=16,size=threshold)+
+          geom_point(aes(color=rule.for.chart),alpha=.2,shape=19,size=3.5,stroke=0)+
           xlab("Measurement and estimation uncertainty (SD)")+
-          ylab("Bias amount (estimated CE - true CE)")
+          ylab("Bias amount (estimated CE - true CE)")+
+          scale_fill_manual(values=c("orchid4", "orange"))+
+          scale_color_manual(values=c("orchid4", "orange"))
       }
     # Distributions bias among selected and rejected
       plot.dists.bias.selected <- function(df,rule.selected){
+        
+        
         # Apply rules
         df$CE.estimated.meets.rule.1 <- factor(ifelse(df$CE.estimated>=rule.1.threshold,1,0),levels = c(0,1),labels=c("Rejected","Selected"))
-        df$CE.estimated.rule.2.CI.LB <- qnorm(input$rule2alpha/2,mean=df$CE.estimated,sd=df$CE.estimation.se)
+        df$CE.estimated.rule.2.CI.LB <- qnorm(input$rule2alpha,mean=df$CE.estimated,sd=df$CE.estimation.se)
         df$CE.estimated.meets.rule.2 <- factor(ifelse(df$CE.estimated.rule.2.CI.LB>=input$rule2threshold,1,0),levels = c(0,1),labels=c("Rejected","Selected"))
         
         if (rule.selected=="Rule1"){
@@ -63,9 +74,9 @@ server <- function(input, output) {
         ggplot(data=df,aes(x=rule.for.chart,y=CE.estimated.bias,fill=rule.for.chart))+
           theme_bw()+
           coord_flip()+
-          stat_slab(aes(thickness = stat(pdf*n)), scale = 0.7,alpha=.7)+
+          stat_slab(aes(thickness = stat(pdf*n)), scale = .7,alpha=.7)+
           scale_y_continuous(expand=c(0,0),limits = c(-4,4))+
-          stat_dotsinterval(side="bottom",binwidth=0.01)+
+          stat_dotsinterval(side="bottom",binwidth=dots.binwidth,show_interval=FALSE)+
           theme(
             legend.position = "bottom",
             legend.title = element_blank(),
@@ -74,15 +85,18 @@ server <- function(input, output) {
             panel.grid.major.y = element_blank(),
             panel.grid.minor.y = element_blank(),
             panel.border = element_blank(),
+            axis.title = element_text(size=14),
+            axis.text.y = element_text(angle = 90,hjust=0,size=12),
+            legend.text = element_text(size=12),
             axis.ticks = element_blank()
           )+
           geom_segment(yend=mean(df[df$rule.for.chart=="Rejected",]$CE.estimated.bias),
                        y=mean(df[df$rule.for.chart=="Rejected",]$CE.estimated.bias),
-                       x=1,xend=2.5,color="black",linetype=2)+
+                       x=.8,xend=2.5,color="black",linetype=2)+
           geom_segment(yend=mean(df[df$rule.for.chart=="Selected",]$CE.estimated.bias),
                        y=mean(df[df$rule.for.chart=="Selected",]$CE.estimated.bias),
                        x=2,xend=2.5,color="black",linetype=2)+
-          annotate(geom="label",x=0.7,y=mean(df[df$rule.for.chart=="Rejected",]$CE.estimated.bias),
+          annotate(geom="label",x=0.4,y=mean(df[df$rule.for.chart=="Rejected",]$CE.estimated.bias),
                    label=c("Mean bias\namong\nrejected"),fill="white",label.size = NA)+
           annotate(geom="label",x=1.7,y=mean(df[df$rule.for.chart=="Selected",]$CE.estimated.bias),
                    label=c("Mean bias\namong\nselected"),fill="white",label.size = NA)+
@@ -90,13 +104,14 @@ server <- function(input, output) {
                        y=mean(df[df$rule.for.chart=="Rejected",]$CE.estimated.bias),
                        x=2.3,xend=2.3,color="black",linetype=1,arrow=arrow(ends="both"))+
           xlab("Selected for inclusion")+
-          ylab("Bias relative to true CE (point estimate of CE - true CE)")
+          ylab("Bias relative to true CE (point estimate of CE - true CE)")+
+          scale_fill_manual(values=c("orchid4", "orange"))
       }
     # Distributions of true and false rejections
       plot.dists.true.v.false.rejection <- function(df,rule.selected){
         # Apply rules
         df$CE.estimated.meets.rule.1 <- factor(ifelse(df$CE.estimated>=rule.1.threshold,1,0),levels = c(0,1),labels=c("Rejected","Selected"))
-        df$CE.estimated.rule.2.CI.LB <- qnorm(input$rule2alpha/2,mean=df$CE.estimated,sd=df$CE.estimation.se)
+        df$CE.estimated.rule.2.CI.LB <- qnorm(input$rule2alpha,mean=df$CE.estimated,sd=df$CE.estimation.se)
         df$CE.estimated.meets.rule.2 <- factor(ifelse(df$CE.estimated.rule.2.CI.LB>=input$rule2threshold,1,0),levels = c(0,1),labels=c("Rejected","Selected"))
         
         if (rule.selected=="Rule1"){
@@ -110,7 +125,8 @@ server <- function(input, output) {
         df.long$type <- factor(df.long$type,levels=c("CE.estimated","CE.true"),labels=c("Estimated CE","True CE"))
         df.long <- rbind(df.long,df.long)
         df.long$rule.for.chart <- as.character(df.long$rule.for.chart)
-        df.long$rule.for.chart[(input$n.programs*2+1):(input$n.programs*2*2)] <- "All"
+        #df.long$rule.for.chart[(input$n.programs*2+1):(input$n.programs*2*2)] <- "All"
+        df.long$rule.for.chart[(n.programs*2+1):(n.programs*2*2)] <- "All"
         
         true.pos <- nrow(df[df$CE.true>=1 & df$rule.for.chart=="Selected",])
         false.pos <- nrow(df[df$CE.true<1 & df$rule.for.chart=="Selected",])
@@ -120,8 +136,9 @@ server <- function(input, output) {
         ggplot(data=df.long,aes(x=rule.for.chart,y=CE,fill=type))+
           theme_bw()+
           coord_flip()+
-          stat_slab(aes(thickness = stat(pdf*n)), scale = 0.7,alpha=.7)+
-          stat_dotsinterval(side="bottom",binwidth=0.01)+
+          stat_dotsinterval(side="bottom",binwidth=dots.binwidth,show_interval=FALSE)+
+          stat_slab(aes(thickness = stat(pdf*n)), scale = .7,alpha=.7)+
+          
           scale_y_continuous(expand=c(0,0),breaks=c(-2:6),limits = c(-2,6))+
           theme(
             legend.position = "bottom",
@@ -131,6 +148,9 @@ server <- function(input, output) {
             panel.grid.major.y = element_blank(),
             panel.grid.minor.y = element_blank(),
             panel.border = element_blank(),
+            axis.title = element_text(size=14),
+            axis.text.y = element_text(angle = 90,hjust=0,size=12),
+            legend.text = element_text(size=12),
             axis.ticks = element_blank()
           )+
           geom_hline(yintercept=1,linetype=1)+
@@ -148,9 +168,9 @@ server <- function(input, output) {
           geom_segment(yend=-1.5,y=1,x=3.3,xend=3.3,linetype=1,color="grey",arrow=arrow())+
           geom_segment(y=1,yend=5.5,x=2.35,xend=2.35,linetype=1,color="grey",arrow=arrow())+
           xlab("Selected for funding")+
-          ylab("Cost-effectiveness (expressed in multiples of GiveDirectly's cost-effectiveness)")+
-          annotate(geom="label",x=0.70,y=threshold,label=c("Threshold for\nselection"),fill="white",label.size = NA)+
-          annotate(geom="label",x=0.70,y=1,label=c("GiveDirectly\nCE"),fill="white",label.size = NA)
+          ylab("Cost-effectiveness (expressed in multiples of cash transfer's cost-effectiveness)")+
+          annotate(geom="label",x=0.35,y=threshold,label=c("Threshold for\nselection"),fill="white",label.size = NA,vjust=1)+
+          annotate(geom="label",x=0.35,y=1,label=c("Cash transfer\nCE"),fill="white",label.size = NA,vjust=1)
       }
   }
   
@@ -159,7 +179,7 @@ server <- function(input, output) {
     {
       # Generate a set of candidate programs and their true cost-effectiveness
         # Settings
-          n.programs <- input$n.programs
+          #n.programs <- input$n.programs
           CE.programs.distribution.true.mean <- input$CE.programs.distribution.true.mean # The mean of all programs' cost-effectiveness
           CE.programs.distribution.true.sd <- input$CE.programs.distribution.true.sd # The standard deviation of programs' true cost-effectiveness
         # Generate programs
@@ -208,12 +228,12 @@ server <- function(input, output) {
     headerPanel("Conceptual demonstration of overall selection problem"),
     sidebarPanel(
       h4("Generate simulated candidate programs"),
-      numericInput("n.programs", 
-                   "# candidate programs to randomly generate", 
-                   #value = 10000,
-                   
-                   value = 1000,
-                   min=100,max=2000),
+      # sliderInput("n.programs", 
+      #              "# candidate programs to randomly generate", 
+      #              #value = 10000,
+      #              
+      #              value = 2000,
+      #              min=100,max=4000,step=100),
       h4("True cost-effectiveness"),
       helpText("Distribution of programs' true cost-effectiveness."),
       sliderInput("CE.programs.distribution.true.mean", "Average of programs' true cost-effectiveness",
@@ -224,9 +244,9 @@ server <- function(input, output) {
       helpText("Add random uncertainty to the measurement of the programs' cost-effectiveness."),
       sliderInput("CE.estimation.SD", "Range of programs' measurement uncertainty (SD)",
                   min = 0, max = 5, value = c(0,2),step=.1),
-      helpText("Add a factor that reduces the uncertainty for more effective programs (e.g. programs that are more cost-effective are more likely to be better tested), where 1 is no adjustment."),
+      helpText("Add a factor that reduces the uncertainty for more effective programs (e.g. programs that are more cost-effective are more likely to be better tested), where 0 is no adjustment."),
       sliderInput("CE.programs.certainty.reduction.factor", "Program certainty reduction factor",
-                  min = 0, max = 1, value = 0,step=.05),
+                  min = 0, max = 1, value = 0,step=.1),
     ),
     
     mainPanel(
@@ -241,22 +261,25 @@ server <- function(input, output) {
         column(6,
                disabled(sliderInput("rule2threshold", "Threshold value for certainty interval LB",
                                     min = 1, max = 4, value = 2,step=.1)),
-               disabled(sliderInput("rule2alpha", "Alpha level for certainty interval rule (i.e. alpha = 0.2 corresponds to a 60% certainty interval)",
+               disabled(sliderInput("rule2alpha", "Alpha level for certainty interval rule (one-tailed, i.e. alpha = 0.1 corresponds to a 90% certainty interval)",
                                     #min = 0, max = .5, value = .2,step=.01))
-                                    min = 0, max = 1, value = .2,step=.01))
+                                    min = 0, max = 1, value = .1,step=.01))
         ),
         
       ),
       tabsetPanel(type = "tabs",
                   tabPanel("True vs. false rejections",
-                           plotOutput("plot.dists.true.v.false.rejection")
+                           plotOutput("plot.dists.true.v.false.rejection"),
+                           helpText("Note: The distributions above are smoothed for readability, but show the distribution of the 2,000 programs generated in the settings on the left.")
                   ),
                   tabPanel("Selection Bias",
-                           plotOutput("plot.dists.bias.selected")
+                           plotOutput("plot.dists.bias.selected"),
+                           helpText("Note: The distributions above are smoothed for readability, but show the distribution of the 2,000 programs generated in the settings on the left.")
                   ),
                   tabPanel("Uncertainty vs Bias",
                            plotOutput("plot.uncertainty.vs.bias")
                   )
+                  
       )
     )
   )

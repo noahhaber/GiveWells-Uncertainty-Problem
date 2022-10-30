@@ -37,20 +37,23 @@ server <- function(input, output) {
           panel.grid.minor.y = element_blank(),
           panel.border = element_blank(),
           axis.ticks = element_blank(),
-          axis.text.y = element_blank()
+          axis.text.y = element_blank(),
+          axis.title = element_text(size=14),
+          axis.text = element_text(hjust=0),
+          legend.text = element_text(size=12),
         ) +
         stat_slab(aes(xdist=dist_normal(program.mean.1,program.sd.1)),alpha=.2,fill="blue")+
         stat_slab(aes(xdist=dist_normal(program.mean.2,program.sd.2)),alpha=.2,fill="red")+
         geom_vline(xintercept=3,linetype=2)+
-        xlab("Cost effectiveness")+
+        xlab("Cost-effectiveness (expressed in multiples of cash transfer's cost-effectiveness)")+
         ylab("Probability density")+
         annotate(geom="label",x=-1.5,y=.9,hjust = 0,vjust=1,
-                 label=c(paste0("Program 1:\nProbability > 3: ",
+                 label=c(paste0("Program A:\nProbability > 3: ",
                                 round(100*(1-pnorm(3,mean=program.mean.1,sd=program.sd.1)),0),"%")),
                  fill="white",label.size = NA)+
         geom_rect(aes(xmin = -1.8, xmax = -1.6, ymin = .8, ymax = .9),alpha=.2,fill="blue") + 
         annotate(geom="label",x=-1.5,y=.7,hjust = 0,vjust=1,
-                 label=c(paste0("Program 2:\nProbability > 3: ",
+                 label=c(paste0("Program B:\nProbability > 3: ",
                                 round(100*(1-pnorm(3,mean=program.mean.2,sd=program.sd.2)),0),"%")),
                  fill="white",label.size = NA)+
         geom_rect(aes(xmin = -1.8, xmax = -1.6, ymin = .6, ymax = .7),alpha=.2,fill="red")
@@ -73,13 +76,13 @@ server <- function(input, output) {
   ui <- pageWithSidebar(
     headerPanel("Two programs with uncertainty"),
     sidebarPanel(
-      h4("Program 1"),
+      h4("Program A"),
 
       sliderInput("program.mean.1", "True effect",
                   min = 0, max = 5, value = 2.8,step=.1),
       sliderInput("program.sd.1", "Maeasurement uncertainty (SD)",
                   min = 0, max = 5, value = 0.5,step=.1),
-      h4("Program 2"),
+      h4("Program B"),
       sliderInput("program.mean.2", "True effect",
                   min = 0, max = 5, value = 2.5,step=.1),
       sliderInput("program.sd.2", "Maeasurement uncertainty (SD)",
