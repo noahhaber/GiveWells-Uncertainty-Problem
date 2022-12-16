@@ -263,7 +263,7 @@ server <- function(input, output) {
                                     min = 1, max = 4, value = 2,step=.1)),
                disabled(sliderInput("rule2alpha", "Alpha level for certainty interval rule (one-tailed, i.e. alpha = 0.1 corresponds to a 90% certainty interval)",
                                     #min = 0, max = .5, value = .2,step=.01))
-                                    min = 0, max = 1, value = .1,step=.01))
+                                    min = 0, max = 1, value = .2,step=.01))
         ),
         
       ),
