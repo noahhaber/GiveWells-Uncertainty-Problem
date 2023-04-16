@@ -97,7 +97,7 @@ server <- function(input, output) {
           stat_slab(aes(thickness = stat(pdf*n)), scale = 0.7,alpha=.7)+
           
           annotate(geom="label",x=-2,y=.9,hjust = 0,
-                   label=c(paste0("Probability that candidate program is\nmore cost-effective than cash transfer: ",p.greater.than.comparator.label,"\nThreshold: ",rule3.p.threshold*100,"%\nResult: ",accept.reject)),fill="white",label.size = NA)
+                   label=c(paste0("Probability that candidate program is\nmore cost-effective than cash transfer: ",p.greater.than.comparator.label,"\nThreshold: ",rule4.p.threshold*100,"%\nResult: ",accept.reject)),fill="white",label.size = NA)
       }
 
       # Return plot
